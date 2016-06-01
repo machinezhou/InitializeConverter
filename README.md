@@ -15,7 +15,7 @@ public class TestModel {
   public List<InlineModel> f;
 }
 
-public class InlineModel {
+public static class InlineModel {
   public int id;
   public String h;
   public String g;
@@ -61,7 +61,7 @@ If you do care about the test data, you can use InitializeConverter this way.: (
 ```
 
 #Note
-* InitializeConverter don't support non-static inline class won't be recognised. So try to avoid it.（不支持非静态内部类）
+* InitializeConverter doesn't support non-static inline class, So try to avoid it.（不支持非静态内部类）
 * It's mainly used for testing because of the awkward performance of reflect operation.(它仅用于测试，因为赋值操作都是反射做到的)
 * PackageName will be needed for recognize the custom class. By default, context.getPackageName() will be fine.But if applicationId is modified by gradle productFlavors, then you have to set the original one in BuildConfig.(包名用于识别自定义类，默认情况下直接使用context.getPackageName()传入就可以了，但是如果productFlavors修改了包名的话就需要自己设置项目的基本包名，就像上面示例所写)
 
