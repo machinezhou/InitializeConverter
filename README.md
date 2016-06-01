@@ -60,6 +60,6 @@ If you do care much about the test data, you can use InitializeConverter this wa
 ```
 
 #Note
-* InitializeConverter don't support inline class yet, don't have much time to improve it.（时间关系，内部类的bug还没有修复）
+* InitializeConverter don't support non-static inline class won't be recognised. So try to avoid it.（不支持非静态内部类）
 * It's mainly used for testing because of the awkward performance of reflect operation.(它仅用于测试，因为赋值操作都是反射做到的)
 
