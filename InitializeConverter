@@ -1,5 +1,9 @@
+package com.xuanyi.cqecar.util;
 
-import android.content.Context;
+/**
+ * Created by lawson on 16/4/9.
+ */
+
 import android.text.TextUtils;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -24,6 +28,8 @@ import java.util.List;
  * MyType target = convert.from(json, MyType.class); // instantiate your MyType.class
  * </pre></p>
  *
+ * Note: non-static inline class won't be recognised. So try to avoid it.
+ *
  * Created by lawson on 16/4/8.
  */
 public class InitializeConverter {
@@ -39,20 +45,20 @@ public class InitializeConverter {
   private double doubleSeed;
   private String packageName;
 
-  public InitializeConverter(Context context) {
-    this(context, DEFAULT_STRING, DEFAULT_INTEGER, DEFAULT_FLOAT, DEFAULT_DOUBLE);
+  public InitializeConverter(String packageName) {
+    this(packageName, DEFAULT_STRING, DEFAULT_INTEGER, DEFAULT_FLOAT, DEFAULT_DOUBLE);
   }
 
-  public InitializeConverter(Context context, String strSeed, int intSeed, float floatSeed,
+  public InitializeConverter(String packageName, String strSeed, int intSeed, float floatSeed,
       double doubleSeed) {
     this.strSeed = strSeed;
     this.intSeed = intSeed;
     this.floatSeed = floatSeed;
     this.doubleSeed = doubleSeed;
-    packageName = context.getPackageName();
     if (TextUtils.isEmpty(packageName)) {
-      throw new IllegalArgumentException("package name must not be null");
+      throw new IllegalArgumentException("package name must not be empty");
     }
+    this.packageName = packageName;
   }
 
   @SuppressWarnings("unchecked") public Object from(Class service) {
@@ -99,9 +105,16 @@ public class InitializeConverter {
    * @param c target class
    */
   private boolean isCustomObject(Class c) {
-    return c.getPackage() != null && !TextUtils.isEmpty(c.getPackage().getName()) && c.getPackage()
-        .getName()
-        .equals(packageName);
+    Package pack = c.getPackage();
+    if (pack != null) {
+      String name = pack.getName();
+      if (!TextUtils.isEmpty(name)) {
+        if (name.startsWith(packageName)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   /**
