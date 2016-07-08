@@ -82,7 +82,14 @@ public class InitializeConverter {
           assign(field, object, doubleSeed);
         }
         if (isCustomObject(fieldClass)) {
-          assign(field, object, from(fieldClass));
+          if (fieldClass.isEnum()) {
+            Object[] objects = fieldClass.getEnumConstants();
+            if (objects.length > 0) {
+              assign(field, object, objects[0]);  //set first enum value for initialization
+            }
+          } else {
+            assign(field, object, from(fieldClass));
+          }
         }
         if (fieldClass.isAssignableFrom(List.class)) {
           List list = new ArrayList<>();
