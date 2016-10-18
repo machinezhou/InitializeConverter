@@ -48,16 +48,21 @@ So we have to do a lot of work to initialize the TestModel:(那么我们不得�
 
 If you don't care much about the test data, you can use InitializeConverter instead:(如果你并不在乎你赋的值是什么而仅仅是想调试你的功能逻辑以及界面布局的话，那么你就可以用它了)
 ```
- InitializeConverter c = new InitializeConverter(BuildConfig.BASE_PACKAGE_NAME);
- TestModel model = (TestModel) c.from(TestModel.class);
+    TestModel model = (TestModel) new InitializeConverter.InitializeConverterBuilder().create(
+        BuildConfig.BASE_PACKAGE_NAME, TestModel.class);
 ```
 
 If you do care about the test data, you can use InitializeConverter this way.: (如果你在乎你赋的值是什么的话，那么目前只支持针对类型进行赋初值，否则的话与手写初始化就差不多了)
 
 ```
-    TestModel model =
-        (TestModel) new InitializeConverter(BuildConfig.BASE_PACKAGE_NAME, "String type initialization", 200, 4000.22f,
-            4000.22).from(TestModel.class);
+    
+    
+    TestModel model = (TestModel) new InitializeConverter.InitializeConverterBuilder().s(
+        "String type initialization")
+        .i(200)
+        .f(4000.22f)
+        .d(4000.22)
+        .create(BuildConfig.BASE_PACKAGE_NAME, TestModel.class);
 ```
 
 #Note
