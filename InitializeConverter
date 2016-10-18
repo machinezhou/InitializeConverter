@@ -1,9 +1,6 @@
+package com.xuanyi.cqecar.util;
 
-
-/**
- * Created by lawson on 16/4/9.
- */
-
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -18,18 +15,17 @@ import java.util.List;
  * so complex or has static inline class.
  *
  * <p>You can create a InitializeConverter instance by invoking {@code new
- * InitializeConverterBuilder(...).create()}
+ * InitializeConverterBuilder().create()}
  *
  * <p>Here is an example of how InitializeConverter is used for a simple Class:
  *
  * <pre>
- * MyType target = new InitializeConverterBuilder()
- *          .setPackageName("com.xxx.xxx").target(MyType.class).create();
+ * MyType target = (MyType) new InitializeConverterBuilder().create("com.xxx.xxx", MyType.class);
  * </pre></p>
  *
  * Note: non-static inline class won't be recognised. So try to avoid it.
  *
- * Created by lawson on 16/10/18.
+ * Updated by lawson on 16/10/18.
  */
 public final class InitializeConverter {
 
@@ -45,13 +41,12 @@ public final class InitializeConverter {
   private String packageName;
 
   private InitializeConverter(String packageName, String strSeed, int intSeed, float floatSeed,
-      double doubleSeed, Class service) {
+      double doubleSeed) {
     this.strSeed = strSeed;
     this.intSeed = intSeed;
     this.floatSeed = floatSeed;
     this.doubleSeed = doubleSeed;
     this.packageName = packageName;
-    from(service);
   }
 
   @SuppressWarnings("unchecked") private Object from(Class service) {
@@ -145,45 +140,42 @@ public final class InitializeConverter {
     private int intSeed;
     private float floatSeed;
     private double doubleSeed;
-    private String packageName;
-    private Class target;
 
-    public InitializeConverterBuilder setStrValue(String strSeed) {
+    /**
+     * set string value
+     */
+    public InitializeConverterBuilder s(String strSeed) {
       this.strSeed = strSeed;
       return this;
     }
 
-    public InitializeConverterBuilder setIntValue(int intSeed) {
+    /**
+     * set int value
+     */
+    public InitializeConverterBuilder i(int intSeed) {
       this.intSeed = intSeed;
       return this;
     }
 
-    public InitializeConverterBuilder setFloatValue(float floatSeed) {
+    /**
+     * set float value
+     */
+    public InitializeConverterBuilder f(float floatSeed) {
       this.floatSeed = floatSeed;
       return this;
     }
 
-    public InitializeConverterBuilder setDoubleValue(double doubleSeed) {
+    /**
+     * set double value
+     */
+    public InitializeConverterBuilder d(double doubleSeed) {
       this.doubleSeed = doubleSeed;
       return this;
     }
 
-    public InitializeConverterBuilder setPackageName(String packageName) {
-      this.packageName = packageName;
-      return this;
-    }
-
-    public InitializeConverterBuilder target(Class target) {
-      this.target = target;
-      return this;
-    }
-
-    public InitializeConverter create() {
+    public Object create(@NonNull String packageName, @NonNull Class target) {
       if (TextUtils.isEmpty(packageName)) {
         throw new IllegalArgumentException("package name must not be empty");
-      }
-      if (target == null) {
-        throw new IllegalArgumentException("target  must not be null");
       }
       if (TextUtils.isEmpty(strSeed)) {
         strSeed = DEFAULT_STRING;
@@ -198,7 +190,8 @@ public final class InitializeConverter {
         doubleSeed = DEFAULT_DOUBLE;
       }
 
-      return new InitializeConverter(packageName, strSeed, intSeed, floatSeed, doubleSeed, target);
+      return new InitializeConverter(packageName, strSeed, intSeed, floatSeed, doubleSeed).from(
+          target);
     }
   }
 }
