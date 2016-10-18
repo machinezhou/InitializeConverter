@@ -1,4 +1,4 @@
-package com.xuanyi.cqecar.util;
+
 
 /**
  * Created by lawson on 16/4/9.
@@ -15,29 +15,28 @@ import java.util.List;
  * This is a constructor for initializing your model class.
  *
  * Its best use is to avoid handmade model class initialization especially when your model class is
- * so complex or has inline class.
+ * so complex or has static inline class.
  *
  * <p>You can create a InitializeConverter instance by invoking {@code new
- * InitializeConverter(context)}
- * if the default configuration is all you need.
+ * InitializeConverterBuilder(...).create()}
  *
  * <p>Here is an example of how InitializeConverter is used for a simple Class:
  *
  * <pre>
- * InitializeConverter convert = new InitializeConverter();
- * MyType target = convert.from(json, MyType.class); // instantiate your MyType.class
+ * MyType target = new InitializeConverterBuilder()
+ *          .setPackageName("com.xxx.xxx").target(MyType.class).create();
  * </pre></p>
  *
  * Note: non-static inline class won't be recognised. So try to avoid it.
  *
- * Created by lawson on 16/4/8.
+ * Created by lawson on 16/10/18.
  */
-public class InitializeConverter {
+public final class InitializeConverter {
 
-  public static final String DEFAULT_STRING = "InitializeConverter";
-  public static final int DEFAULT_INTEGER = 1;
-  public static final float DEFAULT_FLOAT = 1.0f;
-  public static final double DEFAULT_DOUBLE = 1.0;
+  private static final String DEFAULT_STRING = "InitializeConverter";
+  private static final int DEFAULT_INTEGER = 1;
+  private static final float DEFAULT_FLOAT = 1.0f;
+  private static final double DEFAULT_DOUBLE = 1.0;
 
   private String strSeed;
   private int intSeed;
@@ -45,23 +44,17 @@ public class InitializeConverter {
   private double doubleSeed;
   private String packageName;
 
-  public InitializeConverter(String packageName) {
-    this(packageName, DEFAULT_STRING, DEFAULT_INTEGER, DEFAULT_FLOAT, DEFAULT_DOUBLE);
-  }
-
-  public InitializeConverter(String packageName, String strSeed, int intSeed, float floatSeed,
-      double doubleSeed) {
+  private InitializeConverter(String packageName, String strSeed, int intSeed, float floatSeed,
+      double doubleSeed, Class service) {
     this.strSeed = strSeed;
     this.intSeed = intSeed;
     this.floatSeed = floatSeed;
     this.doubleSeed = doubleSeed;
-    if (TextUtils.isEmpty(packageName)) {
-      throw new IllegalArgumentException("package name must not be empty");
-    }
     this.packageName = packageName;
+    from(service);
   }
 
-  @SuppressWarnings("unchecked") public Object from(Class service) {
+  @SuppressWarnings("unchecked") private Object from(Class service) {
     Object object = null;
     try {
       object = service.newInstance();
@@ -141,9 +134,71 @@ public class InitializeConverter {
    *
    * @return the generic type
    */
-  public Class getGenericType(Field field) {
+  private Class getGenericType(Field field) {
     ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
     Type[] types = parameterizedType.getActualTypeArguments();
     return (Class) types[0];
+  }
+
+  public static class InitializeConverterBuilder {
+    private String strSeed;
+    private int intSeed;
+    private float floatSeed;
+    private double doubleSeed;
+    private String packageName;
+    private Class target;
+
+    public InitializeConverterBuilder setStrValue(String strSeed) {
+      this.strSeed = strSeed;
+      return this;
+    }
+
+    public InitializeConverterBuilder setIntValue(int intSeed) {
+      this.intSeed = intSeed;
+      return this;
+    }
+
+    public InitializeConverterBuilder setFloatValue(float floatSeed) {
+      this.floatSeed = floatSeed;
+      return this;
+    }
+
+    public InitializeConverterBuilder setDoubleValue(double doubleSeed) {
+      this.doubleSeed = doubleSeed;
+      return this;
+    }
+
+    public InitializeConverterBuilder setPackageName(String packageName) {
+      this.packageName = packageName;
+      return this;
+    }
+
+    public InitializeConverterBuilder target(Class target) {
+      this.target = target;
+      return this;
+    }
+
+    public InitializeConverter create() {
+      if (TextUtils.isEmpty(packageName)) {
+        throw new IllegalArgumentException("package name must not be empty");
+      }
+      if (target == null) {
+        throw new IllegalArgumentException("target  must not be null");
+      }
+      if (TextUtils.isEmpty(strSeed)) {
+        strSeed = DEFAULT_STRING;
+      }
+      if (intSeed == 0) {
+        intSeed = DEFAULT_INTEGER;
+      }
+      if (floatSeed == 0) {
+        floatSeed = DEFAULT_FLOAT;
+      }
+      if (doubleSeed == 0) {
+        doubleSeed = DEFAULT_DOUBLE;
+      }
+
+      return new InitializeConverter(packageName, strSeed, intSeed, floatSeed, doubleSeed, target);
+    }
   }
 }
